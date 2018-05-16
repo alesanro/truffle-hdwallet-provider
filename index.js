@@ -44,14 +44,15 @@ let WalletProvider = function(wallet, password, provider_url, address_index) {
     address_index = 0;
   }
 
-  wallet = Wallet.fromV3(wallet, password, true);
-  address = "0x" + this.wallet.getAddress().toString("hex");
-
-  engine = new ProviderEngine();
-  engine.addProvider(new WalletSubprovider(this.wallet, {}));
-  engine.addProvider(new FiltersSubprovider());
-  engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(provider_url)));
-  return engine.start(); // Required by the provider engine.
+  this.wallet = Wallet.fromV3(wallet, password, true);
+  
+  this.address = "0x" + this.wallet.getAddress().toString("hex");
+  
+  this.engine = new ProviderEngine();
+  this.engine.addProvider(new WalletSubprovider(this.wallet, {}));
+  this.engine.addProvider(new FiltersSubprovider());
+  this.engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(provider_url)));
+  return this.engine.start(); // Required by the provider engine.
 };
 
 let MnemonicProvider = function(mnemonic, provider_url, address_index=0, num_addresses=1) {
@@ -71,8 +72,8 @@ let MnemonicProvider = function(mnemonic, provider_url, address_index=0, num_add
   const tmp_accounts = this.addresses;
   const tmp_wallets = this.wallets;
 
-  engine = new ProviderEngine();
-  engine.addProvider(new HookedSubprovider({
+  this.engine = new ProviderEngine();
+  this.engine.addProvider(new HookedSubprovider({
     getAccounts: function(cb) { cb(null, tmp_accounts) },
     getPrivateKey: function(address, cb) {
       if (!tmp_wallets[address]) { return cb('Account not found'); }
@@ -103,9 +104,9 @@ let MnemonicProvider = function(mnemonic, provider_url, address_index=0, num_add
       cb(null, rpcSig);
     }
   }));
-  engine.addProvider(new FiltersSubprovider());
-  engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(provider_url)));
-  return engine.start(); // Required by the provider engine.
+  this.engine.addProvider(new FiltersSubprovider());
+  this.engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(provider_url)));
+  return this.engine.start(); // Required by the provider engine.
 };
 
 WalletProvider.prototype.sendAsync = function() {
